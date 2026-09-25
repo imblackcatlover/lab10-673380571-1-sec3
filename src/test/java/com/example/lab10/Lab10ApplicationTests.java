@@ -1,10 +1,12 @@
 package com.example.lab10;
 
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
 import com.example.lab10.model.Product;
 import com.example.lab10.repository.ProductRepository;
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import reactor.test.StepVerifier;
 
 /**
@@ -55,22 +57,41 @@ class Lab10ApplicationTests {
     // ══════════════════════════════════════════════════════
 
     @Test
-    void testFindAll() {
-        // TODO: ทดสอบว่า findAll() คืน Flux ที่มี element
-        // Hint: StepVerifier.create(repository.findAll())
-        //         .expectNextCount(3)   ← มี 3 รายการ
-        //         .verifyComplete()
+void testFindAll() {
+    // ทดสอบว่า findAll() คืนข้อมูลทั้งหมด 3 รายการ
+    StepVerifier.create(repository.findAll())
+            .expectNextCount(3)
+            .verifyComplete();
     }
 
     @Test
-    void testSave() {
-        // TODO: ทดสอบ save() บันทึกแล้วคืน Product
-        // Hint: สร้าง Product ใหม่ → save → expectNext → verifyComplete
-    }
+void testSave() {
+    // สร้าง Product ใหม่
+    Product product = new Product(
+        "test-product",
+        "Test Product",
+        "Electronics",
+        "Test Brand",
+        10,
+        1000.0,
+        "NONE");
 
-    @Test
-    void testFindByCategory() {
-        // TODO: ทดสอบ findByCategory("Electronics")
-        // Hint: expectNextCount(3) เพราะมี 3 รายการใน Electronics
-    }
+    // ทดสอบ save() ว่าบันทึกและคืน Product กลับมา
+    StepVerifier.create(repository.save(product))
+            .expectNextMatches(p -> p.getName().equals("Test Product"))
+            .verifyComplete();
+
+    // ลบข้อมูลทดสอบออก เพื่อไม่ให้กระทบ test อื่น
+    StepVerifier.create(repository.deleteById("test-product"))
+            .verifyComplete();
+}
+
+   @Test
+void testFindByCategory() {
+    // ทดสอบ findByCategory("Electronics")
+    // ข้อมูลเริ่มต้นมี Electronics ทั้งหมด 3 รายการ
+    StepVerifier.create(repository.findByCategory("Electronics"))
+            .expectNextCount(3)
+            .verifyComplete();
+}
 }

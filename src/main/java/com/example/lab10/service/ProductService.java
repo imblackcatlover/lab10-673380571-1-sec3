@@ -5,6 +5,7 @@ import com.example.lab10.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import java.util.UUID;
 
 /**
  * ProductService — Business Logic Layer
@@ -39,18 +40,20 @@ public class ProductService {
      * Hint: repository.findById(id)
      *       .switchIfEmpty(Mono.error(new RuntimeException(...)))
      */
-    public Mono<Product> getById(String id) {
-        // TODO: เติม code ตรงนี้
-        return null; // ← แก้บรรทัดนี้
+     public Mono<Product> getById(String id) {
+        return repository.findById(id)
+                .switchIfEmpty(
+                        Mono.error(new RuntimeException("Product not found: " + id))
+                );
     }
+
 
     // ── 2. ดึง Product ทั้งหมด ───────────────────────────
     /**
      * TODO: เรียก repository.findAll() แล้วคืนผล
      */
     public Flux<Product> getAll() {
-        // TODO: เติม code ตรงนี้
-        return null; // ← แก้บรรทัดนี้
+        return repository.findAll();
     }
 
     // ── 3. บันทึก Product ────────────────────────────────
@@ -61,8 +64,11 @@ public class ProductService {
      * Hint: java.util.UUID.randomUUID().toString()
      */
     public Mono<Product> save(Product product) {
-        // TODO: เติม code ตรงนี้
-        return null; // ← แก้บรรทัดนี้
+        if (product.getId() == null) {
+            product.setId(UUID.randomUUID().toString());
+        }
+
+        return repository.save(product);
     }
 
     // ── 4. ลบ Product ────────────────────────────────────
@@ -70,17 +76,15 @@ public class ProductService {
      * TODO: เรียก repository.deleteById(id) แล้วคืนผล
      */
     public Mono<Void> delete(String id) {
-        // TODO: เติม code ตรงนี้
-        return null; // ← แก้บรรทัดนี้
+        return repository.deleteById(id);
     }
 
     // ── 5. กรองตาม category ──────────────────────────────
     /**
      * TODO: เรียก repository.findByCategory(category) แล้วคืนผล
      */
-    public Flux<Product> getByCategory(String category) {
-        // TODO: เติม code ตรงนี้
-        return null; // ← แก้บรรทัดนี้
+     public Flux<Product> getByCategory(String category) {
+        return repository.findByCategory(category);
     }
 
     // ── 6. คำนวณราคาหลังส่วนลด ───────────────────────────
@@ -91,7 +95,7 @@ public class ProductService {
      *       .map(p -> p.getDiscountedPrice())
      */
     public Mono<Double> getDiscountedPrice(String id) {
-        // TODO: เติม code ตรงนี้
-        return null; // ← แก้บรรทัดนี้
+        return getById(id)
+                .map(p -> p.getDiscountedPrice());
     }
 }
